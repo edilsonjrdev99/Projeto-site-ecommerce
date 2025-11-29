@@ -1,24 +1,23 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router';
-import { ref, watch } from 'vue';
-import { Toaster } from 'vue-sonner';
+  import { RouterView } from 'vue-router';
+  import { Toaster } from 'vue-sonner';
 
-// COMPONENTS
-import useSettingsColors from '@/composables/action/useSettingsColors';
-import GlobalLoading from '@/components/GlobalLoading.vue';
+  // COMPONENTS
+  import GlobalLoading from '@/components/GlobalLoading.vue';
+  import TopMenu from '@/components/menu/TopMenu.vue';
 
-const { settingsColors } = useSettingsColors();
+  // COMPOSABLE
+  import useSettingsSite from '@/composables/action/settings/useSettingsSite';
 
-const primaryColor = ref('');
+  const { runSettingsHomePage } = useSettingsSite();
 
-watch(settingsColors, newVal => {
-  primaryColor.value = newVal[0].value;
-})
+  // Monta as configurações do site
+  runSettingsHomePage();
 </script>
 
 <template>
-   <!-- Componente de Loading Global --> 
-    <GlobalLoading /> 
+  <!-- Componente de Loading Global --> 
+  <GlobalLoading /> 
     
   <!-- Toast Notifications -->
   <Toaster
@@ -26,8 +25,9 @@ watch(settingsColors, newVal => {
     :theme="'light'"
     :richColors="true"
   />
-  
-  <div class="menu" :style="{ background: primaryColor }"></div>
+
+  <!-- Menu superior -->
+  <TopMenu />
 
   <div id="app">
     <RouterView />
@@ -37,13 +37,6 @@ watch(settingsColors, newVal => {
 <style scoped>
 #app {
   min-height: 100vh;
-}
-
-.menu {
-  width: 100%;
-  height: 50px;
-  position: relative;
-  z-index: 10;
 }
 </style>
 
