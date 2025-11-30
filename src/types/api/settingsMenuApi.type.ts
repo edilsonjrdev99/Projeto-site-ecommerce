@@ -1,4 +1,4 @@
-export interface GetAllSettingsMenuResponse {
+export interface GetAllSettingsMenuResponseType {
   id: number;
   name: string;
   title?: string;

@@ -1,7 +1,7 @@
 import { httpClient, HttpError } from '@/lib/http-client';
 
 // TYPES
-import type { GetAllSettingsMenuResponse } from '@/types/api/settingsMenuApi.type';
+import type { GetAllSettingsMenuResponseType } from '@/types/api/settingsMenuApi.type';
 
 // COMPONENTS
 import useGlobalLoading from '@/composables/useGlobalLoading';
@@ -17,16 +17,16 @@ export default function useSettingsMenuApi() {
 
   /**
    * Função que faz a request de get para todas as configurações públicas de menu
-   * @param onSuccess GetAllSettingsMenuResponse[] - response
+   * @param onSuccess GetAllSettingsMenuResponseType[] - response
    * @param onError error - erro da request
    */
   const getAllSettingsMenu = (
-    onSuccess: (data: GetAllSettingsMenuResponse[]) => void,
+    onSuccess: (data: GetAllSettingsMenuResponseType[]) => void,
     onError: (error: HttpError) => void,
   ) => {
     showLoading();
     
-    httpClient.getWithCallback<GetAllSettingsMenuResponse[]>('/api/public/settings/menu', {
+    httpClient.getWithCallback<GetAllSettingsMenuResponseType[]>('/api/public/settings/menu', {
       onSuccess: data => {
         onSuccess(data);
       },

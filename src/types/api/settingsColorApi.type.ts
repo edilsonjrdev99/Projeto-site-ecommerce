@@ -1,4 +1,4 @@
-export interface GetAllSettingsColorsResponse {
+export interface GetAllSettingsColorsResponseType {
   id: number;
   key: string;
   value: string;

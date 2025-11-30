@@ -1,25 +1,39 @@
 <script setup lang="ts">
+  import { ref, watch } from 'vue';
   import { RouterView } from 'vue-router';
-  import { Toaster } from 'vue-sonner';
-
+  
+  // TYPES
+  import type { PublicSettingsColorsType, PublicSettingsMenusType } from './types/action/settings/settingsSite.type';
+  
   // COMPONENTS
   import GlobalLoading from '@/components/GlobalLoading.vue';
+  import { Toaster } from 'vue-sonner';
   import TopMenu from '@/components/menu/TopMenu.vue';
 
   // COMPOSABLE
   import useSettingsSite from '@/composables/action/settings/useSettingsSite';
 
-  const { runSettingsHomePage } = useSettingsSite();
+  const { runSettingsSite, extractConfig, getSettingColorValue, settingsSite, settingsSiteIsLoaded } = useSettingsSite();
 
   // Monta as configurações do site
-  runSettingsHomePage();
+  runSettingsSite();
+
+  const configsColors = ref<PublicSettingsColorsType[]>([]);
+  const configsMenus  = ref<PublicSettingsMenusType[]>([]);
+
+  watch(settingsSite, (newVal, oldVal) => {
+    if (oldVal !== newVal) {
+      configsColors.value = extractConfig('color');
+      configsMenus.value = extractConfig('menu');
+    }
+  });
 </script>
 
 <template>
   <!-- Componente de Loading Global --> 
   <GlobalLoading /> 
     
-  <!-- Toast Notifications -->
+  <!-- Toast Notificações -->
   <Toaster
     position="top-right"
     :theme="'light'"
@@ -27,7 +41,14 @@
   />
 
   <!-- Menu superior -->
-  <TopMenu />
+  <TopMenu 
+    v-if="settingsSiteIsLoaded" 
+    :menus="configsMenus ?? null" 
+    :background="getSettingColorValue(configsColors || [], 'color-primary')"
+    :color="getSettingColorValue(configsColors || [], 'color-text-secondary')"
+    :backgroundSecondary="getSettingColorValue(configsColors || [], 'color-secondary')"
+    :colorSecondary="getSettingColorValue(configsColors || [], 'color-text-secondary')"
+  />
 
   <div id="app">
     <RouterView />

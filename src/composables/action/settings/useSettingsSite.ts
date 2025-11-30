@@ -1,8 +1,9 @@
 import { ref } from "vue";
 
 // TYPES
-import type { GetAllSettingsColorsResponse } from "@/types/api/settingsColorApi.type";
-import type { GetAllSettingsMenuResponse } from "@/types/api/settingsMenuApi.type";
+import type { GetAllSettingsColorsResponseType } from "@/types/api/settingsColorApi.type";
+import type { GetAllSettingsMenuResponseType } from "@/types/api/settingsMenuApi.type";
+import type { PublicSettingType, PublicSettingsColorsType, PublicSettingsMenusType } from "@/types/action/settings/settingsSite.type";
 
 // COMPOSABLES
 import useSettingsColorApi from "@/composables/api/settings/useSettingsColorApi";
@@ -26,20 +27,21 @@ export default function useSettingsSite() {
   const { show: showLoading, hide: hideLoading } = useGlobalLoading();
 
   // Variáveis
-  let responseSettingsColors: GetAllSettingsColorsResponse[] = [];
-  let responseSettingsMenus: GetAllSettingsMenuResponse[] = [];
-  const settingsHomePage = ref<any[]>([]);
+  let responseSettingsColors: GetAllSettingsColorsResponseType[] = [];
+  let responseSettingsMenus: GetAllSettingsMenuResponseType[] = [];
+  const settingsSite = ref<PublicSettingType[]>([]);
+  const settingsSiteIsLoaded = ref<boolean>(false);
 
   /**
    * Função responsável por chamar as requests das configurações do site
    */
-  function runSettingsHomePage() {
+  function runSettingsSite() {
     showLoading();
 
     getAllSettingsColors(
       (responseAllSettingsColors) => {
         responseSettingsColors = responseAllSettingsColors;
-        buildSettingsHomePage();
+        buildSettingsSite();
       },
       (errorAllSettingsColors) => {
         toast.error('Erro ao carregar configurações de cores', errorAllSettingsColors.message);
@@ -48,7 +50,7 @@ export default function useSettingsSite() {
     getAllSettingsMenu(
       (responseAllSettingsMenus) => {
         responseSettingsMenus = responseAllSettingsMenus;
-        buildSettingsHomePage();
+        buildSettingsSite();
         hideLoading();
       },
       (errorAllSettingsMenus) => {
@@ -61,9 +63,10 @@ export default function useSettingsSite() {
   /**
    * Função responsável por montar o array das configurações do site
    */
-  function buildSettingsHomePage() {
-    if(responseSettingsColors.length > 0 && responseSettingsMenus.length > 0) {
-      settingsHomePage.value = [
+  function buildSettingsSite() {
+    settingsSiteIsLoaded.value = responseSettingsColors.length > 0 && responseSettingsMenus.length > 0;
+    if(settingsSiteIsLoaded.value) {
+      settingsSite.value = [
         { config: 'color', values: [...responseSettingsColors]},
         { config: 'menu', values: [...responseSettingsMenus]}
       ];
@@ -75,17 +78,31 @@ export default function useSettingsSite() {
    * @param config string - Nome do tipo de config
    * @returns array com os valores da config
    */
-  function extractConfig(config: string) {
-    if(!settingsHomePage.value.length) return null;
+  function extractConfig(config: string): PublicSettingsColorsType[]|PublicSettingsMenusType[] {
+    if(!settingsSite.value.length) return [];
 
-    const configExtracted = settingsHomePage.value.find(item => item.config === config);
+    const configExtracted = settingsSite.value.find((item: PublicSettingType) => item.config === config);
 
-    return configExtracted.values;
+    return configExtracted?.values ?? [];
+  }
+
+  /**
+   * Função responsável por receber o array de values da config color de settingsSite e retornar o value com base na key
+   * @param settingsColorValues PublicSettingsColorsType[] - array de configurações de cor do site
+   * @param key string - key do array de values do objeto de config: color
+   * @returns string - string do valor da cor ou string vazia quando não existir
+   */
+  function getSettingColorValue(settingsColorValues: PublicSettingsColorsType[], key: string): string {
+    if (!settingsColorValues.length) return '';
+
+    return settingsColorValues.find(item => item.key == key)?.value || '';
   }
 
   return {
-    settingsHomePage,
-    runSettingsHomePage,
-    extractConfig
+    settingsSite,
+    runSettingsSite,  
+    extractConfig,
+    getSettingColorValue,
+    settingsSiteIsLoaded
   }
 }

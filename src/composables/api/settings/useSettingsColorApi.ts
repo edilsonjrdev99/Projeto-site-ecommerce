@@ -3,7 +3,7 @@ import { httpClient, HttpError } from '@/lib/http-client';
 // COMPONENTS
 import useToast from '@/composables/useToast';
 import useGlobalLoading from '@/composables/useGlobalLoading';
-import type { GetAllSettingsColorsResponse } from '@/types/api/settingsColorApi.type';
+import type { GetAllSettingsColorsResponseType } from '@/types/api/settingsColorApi.type';
 
 /**
  * Composable de api que armazena as funções de request das configurações de cores pública do site
@@ -19,12 +19,12 @@ export default function useSettingsColorApi() {
    * @param onError Erro do response
    */
   const getAllSettingsColors = (
-    onSuccess: (data: GetAllSettingsColorsResponse[]) => void,
+    onSuccess: (data: GetAllSettingsColorsResponseType[]) => void,
     onError?: (error: HttpError) => void
   ) => {
     showLoading();
 
-    httpClient.getWithCallback<GetAllSettingsColorsResponse[]>('/api/public/settings/color', {
+    httpClient.getWithCallback<GetAllSettingsColorsResponseType[]>('/api/public/settings/color', {
       onSuccess: data => {
         onSuccess(data);
       },
